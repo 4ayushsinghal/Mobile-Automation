@@ -21,7 +21,7 @@ def pre_requisite():
     }
 
     # Create the driver instance
-    driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
+    driver = webdriver.Remote(command_executor = "http://localhost:4723/wd/hub", desired_capabilities = desired_cap)
     driver.implicitly_wait(20)
 
     yield driver

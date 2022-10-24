@@ -1,5 +1,7 @@
 import logging
 
+from appium.webdriver.common.mobileby import MobileBy
+
 
 def test_one(pre_requisite):
     logging.info("Test Summary: Verify the app displays an error toast message on entering the same source and destination.")
@@ -12,20 +14,19 @@ def test_one(pre_requisite):
 
     logging.info("Step1: Open NS App, Travel Planner Activity screen is displayed - Handled in test setup (pre_requisite)")
     logging.info("Step2: Enter any valid Source Location. For e.g.: Amsterdam Central")
-    driver.find_element("xpath",xpath_from).click()
-    driver.find_element("id",id_search).send_keys("amsterdam")
-    driver.find_element("xpath",f"//android.widget.TextView[@content-desc='{text_from}']").click()
-    assert driver.find_element("xpath",xpath_from).text == text_from
+    driver.find_element(MobileBy.XPATH,xpath_from).click()
+    driver.find_element(MobileBy.ID,id_search).send_keys("amsterdam")
+    driver.find_element(MobileBy.XPATH,f"//android.widget.TextView[@content-desc='{text_from}']").click()
+    assert driver.find_element(MobileBy.XPATH,xpath_from).text == text_from
 
     logging.info("Step3: Enter any valid destination location. For e.g.: Almere Centrum")
-    driver.find_element("xpath",xpath_to).click()
-    driver.find_element("id",id_search).send_keys("almere")
-    driver.find_element("xpath",f"//android.widget.TextView[@content-desc='{text_to}']").click()
-    assert driver.find_element("xpath",xpath_to).text == text_to
+    driver.find_element(MobileBy.XPATH,xpath_to).click()
+    driver.find_element(MobileBy.ID,id_search).send_keys("almere")
+    driver.find_element(MobileBy.XPATH,f"//android.widget.TextView[@content-desc='{text_to}']").click()
+    assert driver.find_element(MobileBy.XPATH,xpath_to).text == text_to
 
     logging.info("Step4: Click on Plan your journey button")
-    driver.find_element("xpath","//android.widget.Button[@bounds='[42,858][1038,984]']").click()
-    result = driver.find_elements("xpath","//android.view.View")
+    driver.find_element(MobileBy.XPATH,"//android.widget.Button[@bounds='[42,858][1038,984]']").click()
 
     logging.info("Expected Result: Pop up with an error message - 'Please enter a different departure and destination'.")
-    
+    assert driver.find_element(MobileBy.XPATH,"//android.widget.TextView['@bounds='[163,250][907,296]']").text == "Please enter a different departure and destination"
