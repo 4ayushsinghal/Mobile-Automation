@@ -1,0 +1,71 @@
+#!groovy
+//Jenkinsfile (Declarative Pipeline)
+
+pipeline {
+    stages {
+		stage("Initial Configuration") {
+			steps {
+				script {
+					PLATFORM_TOOL_DIRECTORY = "${env.ANDROID_HOME}"+"/platform-tools/"
+					EMULATOR_DIRECTORY = "${env.ANDROID_HOME}"+"/emulator/"
+				}
+				sh "pip install -r testNS/src/requirements.txt"
+			}
+		}
+		
+		stage("Download GIT Code") {
+			steps {
+				script {
+					try {
+						checkout([$class: "GitSCM", branches: [[name: "master"]], doGenerateSubmoduleConfigurations: false, 
+						extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${env.GIT_CREDENTIAL}", 
+						url: "https://github.com/4ayushsinghal/Mobile-Automation.git"]]])
+					} catch (err) { 
+						echo "The Download GIT Code Stage failed"                                          
+					}
+				}   
+			}
+		}
+
+		stage("Execute ADB Server") {
+			steps {
+				echo "Executing ADB Server"
+				script {
+					try {
+						sh """
+							cd ${PLATFORM_TOOL_DIRECTORY}
+							./adb start-server&
+						"""
+					} catch (err) { 
+						echo "The ADB Server is not running"                                          
+					}
+				}  
+			}
+		}
+
+		stage("Launch Android Emulator") {
+			steps {
+				echo "Starting Emulator"
+				script {
+					try {
+						sh """
+							cd ${EMULATOR_DIRECTORY}
+							./emulator -avd ${JOB_DEVICE_NAME} -engine auto -wipe-data -no-cache -memory 3072 -no-snapshot-save&
+							sleep 60s
+						"""
+					} catch (err) { 
+						echo "The emulator is not open"                                          
+					}
+				}      
+			}
+		}
+
+		stage("Mobile Automation Tests") {
+			steps {
+				script {
+					sh "python3.10 -m pytest ./testNS/src/tests/"   
+				}
+			}
+		}
+	}
+}
